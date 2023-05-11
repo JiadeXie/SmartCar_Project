@@ -1,0 +1,60 @@
+C51 COMPILER V9.60.0.0   AVOID                                                             02/28/2023 18:25:49 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE AVOID
+OBJECT MODULE PLACED IN .\Objects\avoid.obj
+COMPILER INVOKED BY: E:\Software\C51\C51\BIN\C51.EXE source\ir_avoidance\avoid.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\sourc
+                    -e;.\source\echo;.\source\public;.\source\display;.\source\motor;.\source\servo;.\source\ir_trace;.\source\bluetooth;.\so
+                    -urce\main;.\source\ir_avoidance) DEBUG OBJECTEXTEND PRINT(.\Listings\avoid.lst) TABS(2) OBJECT(.\Objects\avoid.obj)
+
+line level    source
+
+   1          #include "avoid.h"
+   2          
+   3          
+   4          void ir_avoid(void)
+   5          {
+   6   1        motor_timer0_init();
+   7   1        stop();
+   8   1      
+   9   1        while(1)
+  10   1        {
+  11   2          if((AVOID_LEFT==1)&&(AVOID_RIGHT==1))//前面没有障碍物时
+  12   2          {
+  13   3            forward();
+  14   3          }
+  15   2      
+  16   2          if((AVOID_LEFT==0)&&(AVOID_RIGHT==0))//前面有障碍物时
+  17   2          {
+  18   3            back();
+  19   3            Delay500ms();
+  20   3            left(); 
+  21   3            Delay500ms();
+  22   3          }
+  23   2      
+  24   2          if((AVOID_LEFT==1)&&(AVOID_RIGHT==0))//右边有障碍物
+  25   2          {
+  26   3            left();
+  27   3          }
+  28   2      
+  29   2          if((AVOID_LEFT==0)&&(AVOID_RIGHT==1))//左边有障碍物
+  30   2          {
+  31   3            right();
+  32   3          }
+  33   2        }
+  34   1      
+  35   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     53    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

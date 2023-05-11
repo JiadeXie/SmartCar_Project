@@ -1,0 +1,11 @@
+".\Objects\echo.obj",
+".\Objects\public.obj",
+".\Objects\display.obj",
+".\Objects\motor.obj",
+".\Objects\servo.obj",
+".\Objects\IR_Trace.obj",
+".\Objects\bt.obj",
+".\Objects\main.obj",
+".\Objects\avoid.obj" 
+TO ".\Objects\echo" 
+PRINT(".\Listings\echo.m51") RAMSIZE(256) 

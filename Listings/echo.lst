@@ -1,0 +1,167 @@
+C51 COMPILER V9.60.0.0   ECHO                                                              02/28/2023 18:25:45 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE ECHO
+OBJECT MODULE PLACED IN .\Objects\echo.obj
+COMPILER INVOKED BY: E:\Software\C51\C51\BIN\C51.EXE source\echo\echo.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\source;.\sourc
+                    -e\echo;.\source\public;.\source\display;.\source\motor;.\source\servo;.\source\ir_trace;.\source\bluetooth;.\source\main
+                    -;.\source\ir_avoidance) DEBUG OBJECTEXTEND PRINT(.\Listings\echo.lst) TABS(2) OBJECT(.\Objects\echo.obj)
+
+line level    source
+
+   1          #include "echo.h"
+   2          
+   3          
+   4          uint time;  
+   5          uint distance;      //µ¥Î»Ê±CM
+   6          uchar echo_dat[3];  //echo_dat[0]==¸öÎ»,echo_dat[1]==Ê®Î»,echo_dat[2]==°ÙÎ»£¬ÓÃÓÚÊýÂë¹ÜÏÔÊ¾
+   7          
+   8          void echo_avoid(void)
+   9          {
+  10   1        stop();
+  11   1        servo_turn_90();  //¶æ»ú¹éÖÐ
+  12   1        Delay500ms();     //ÑÓÊ±×ã¹»Ê±¼äÈÃ¶æ»úÐý×ª£¬·ñÔò²»¹¤×÷
+  13   1      
+  14   1        motor_timer0_init();  //¶¨Ê±Æ÷0²úÉúµç»úPWMÐÅºÅ
+  15   1        echo_timer1_init();   //³¬Éù²¨ÐÅºÅ³õÊ¼»¯
+  16   1      
+  17   1        while(1) 
+  18   1        {
+  19   2          send_echo();        //·¢ËÍ³¬Éù²¨
+  20   2          rec_echo_count();   //½ÓÊÕ³¬Éù²¨²¢¼ÆËã¾àÀë
+  21   2          distance_display(); //ÊýÂë¹ÜÏÔÊ¾¾àÀë
+  22   2      
+  23   2          if(distance>30) {forward();}    //Èç¹ûÇ°·½ÕÏ°­Îï¾àÀë´óÓÚ30cm£¬Ç°½ø
+  24   2          else  
+  25   2          {
+  26   3            stop();
+  27   3            servo_turn_0();   //¶æ»úÓÒ×ª
+  28   3            Delay500ms();     
+  29   3            
+  30   3            echo_timer1_init();   //ÓÉÓÚ²úÉú¶æ»úPWMÐÅºÅµÄ¼ÆÊ±Æ÷ºÍ½ÓÊÕ³¬Éù²¨ÐÅºÅµÄ¼ÆÊ±Æ÷¶¼ÊÇtimer1£¬Òò´Ë¶æ»úÃ¿´Î×ªÏòº
+             -ó£¬
+  31   3            send_echo();          //¶¼ÒªÖØÐÂ³õÊ¼»¯timer1£¬ÒÔ±ã·¢ËÍ½ÓÊÕ³¬Éù²¨
+  32   3            rec_echo_count();     //½ÓÊÕ³¬Éù²¨²¢¼ÆËã¾àÀë
+  33   3            distance_display();   //ÊýÂë¹ÜÏÔÊ¾¾àÀë
+  34   3            //Delay1000ms(1);
+  35   3            if(distance>30)       //Èç¹ûÓÒ·½ÕÏ°­Îï¾àÀë´óÓÚ30cm
+  36   3            {
+  37   4              right();            //Ð¡³µÓÒ×ª
+  38   4              Delay500ms();
+  39   4              servo_turn_90();    //¶æ»ú¹éÖÐ
+  40   4              Delay500ms();
+  41   4              echo_timer1_init();
+  42   4              send_echo();
+  43   4              rec_echo_count();
+  44   4              distance_display();
+  45   4              forward();          //Ð¡³µÏòÇ°
+  46   4            }
+  47   3            else                  //Èç¹ûÓÒ·½ÕÏ°­Îï¾àÀëÐ¡ÓÚ30cm
+  48   3            {
+  49   4              stop();
+  50   4              servo_turn_180();   //¶æ»ú×ó×ª
+  51   4              Delay500ms();
+  52   4      
+C51 COMPILER V9.60.0.0   ECHO                                                              02/28/2023 18:25:45 PAGE 2   
+
+  53   4              echo_timer1_init();
+  54   4              send_echo();
+  55   4              rec_echo_count();
+  56   4              distance_display();
+  57   4              if(distance>30)     //Èç¹û×ó·½ÕÏ°­Îï¾àÀë´óÓÚ30cm
+  58   4              {
+  59   5                left();           //Ð¡³µ×ó×ª
+  60   5                Delay500ms();
+  61   5                servo_turn_90();  //¶æ»ú¹éÖÐ
+  62   5                Delay500ms();
+  63   5                echo_timer1_init();
+  64   5                send_echo();
+  65   5                rec_echo_count();
+  66   5                distance_display();
+  67   5                forward();
+  68   5              }
+  69   4              else                //Èç¹ûÇ°£¬ÓÒ£¬×ó·½ÕÏ°­Îï¾àÀë¶¼Ð¡ÓÚ30cm
+  70   4              {
+  71   5                stop();
+  72   5                servo_turn_90();  //¶æ»ú¹éÖÐ
+  73   5                Delay500ms();
+  74   5                back();           //Ð¡³µºóÍË
+  75   5                Delay500ms();
+  76   5                right();
+  77   5                Delay500ms();
+  78   5                echo_timer1_init();
+  79   5                send_echo();
+  80   5                rec_echo_count();
+  81   5                distance_display();
+  82   5                continue;         //Ð¡³µÍË³ö±¾´ÎÑ­»·
+  83   5              }
+  84   4            }
+  85   3          }
+  86   2      
+  87   2        }
+  88   1      }
+  89          
+  90          void echo_timer1_init(void)
+  91          {
+  92   1        TMOD &= 0x0F;     //ÉèÖÃ¶¨Ê±Æ÷Ä£Ê½
+  93   1        TMOD |= 0x10;     //ÉèÖÃ¶¨Ê±Æ÷Ä£Ê½
+  94   1        TL1 = 0x00;       //ÉèÖÃ¶¨Ê±³õÊ¼Öµ
+  95   1        TH1 = 0x00;       //ÉèÖÃ¶¨Ê±³õÊ¼Öµ
+  96   1        TF1 = 0;          //Çå³ýTF1±êÖ¾
+  97   1        TR1=0;            //¹Ø±Õ¶¨Ê±Æ÷1
+  98   1        EA=1;             //È«¾ÖÖÐ¶Ï²»ÄÜ¹Ø±Õ£¬·ñÔòµç»úPWMµ÷ËÙ²»Æð×÷ÓÃ
+  99   1        ET1=0;            //¹Ø±ÕTIMER1ÖÐ¶Ï
+ 100   1      }
+ 101          
+ 102          void send_echo(void)
+ 103          {
+ 104   1        TRIG=1;
+ 105   1        Delay20us();
+ 106   1        TRIG=0;
+ 107   1      }
+ 108          
+ 109          void rec_echo_count(void)
+ 110          {
+ 111   1        while(!ECHO);       //Î´ÊÕµ½»ØÉùÊ±µÈ´ý
+ 112   1        TR1=1;              //ÊÕµ½Éù²¨£¬¿ªÊ¼¼ÆÊ±
+ 113   1        while(ECHO);        //µÈ´ýÉù²¨½áÊø
+ 114   1        TR1=0;              //¹Ø±Õ¶¨Ê±Æ÷
+C51 COMPILER V9.60.0.0   ECHO                                                              02/28/2023 18:25:45 PAGE 3   
+
+ 115   1        time=TH1*256+TL1;   //¼ÆËã³¬Éù²¨´Ó·¢Éäµ½½ÓÊÕÊ±¼ä
+ 116   1        distance=(time*1.7)/100;    //distance=(((time/1000000)*340)*100)/2=(time*1.7)/100
+ 117   1        TH1=0;
+ 118   1        TL1=0;              //¼ÆÊ±Æ÷1ÇåÁã
+ 119   1        echo_dat_count();
+ 120   1      }
+ 121          
+ 122          void echo_dat_count(void)
+ 123          {
+ 124   1        uchar temp=0;
+ 125   1        echo_dat[0]=distance%10;  //È¡³ö¸öÎ»
+ 126   1        temp=distance/10;
+ 127   1        echo_dat[1]=temp%10; //È¡³öÊ®Î»
+ 128   1        echo_dat[2]=distance/100; //È¡³ö°ÙÎ»
+ 129   1      }
+ 130          
+ 131          void distance_display(void)
+ 132          {
+ 133   1        display_byte_LED1(CODE[echo_dat[2]]);  //ÏÔÊ¾°ÙÎ»
+ 134   1        display_byte_LED2(CODE[echo_dat[1]]);  //ÏÔÊ¾Ê®Î»
+ 135   1        display_byte_LED3(CODE[echo_dat[0]]);  //ÏÔÊ¾¸öÎ»
+ 136   1      }
+ 137          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    366    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      7    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
